@@ -86,6 +86,8 @@ Going from 512 to 1024 neurons in a single flat layer buys you absolutely nothin
 
 Color here is depth. The shallow end hangs out in the fast, cheap corner. Most of the darkest 4-5 layer dots don't even clear 98% on this dataset. So far, the story really does look like "keep it shallow, keep it wide!" (for MNIST).
 
+>All the runs were performed on Kaggle's shared GPUs, the training time contains unavoidable noise. Use this figure only for interpreting broad trends.
+
 
 ## Best Model by a hair
 
