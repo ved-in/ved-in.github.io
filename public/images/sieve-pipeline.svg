@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 190" role="img" aria-label="Sieve pipeline diagram">
+  <rect x="0" y="0" width="700" height="190" fill="#EFEBE1" />
+  <text x="350" y="88" text-anchor="middle" font-family="-apple-system, Helvetica, Arial, sans-serif" font-size="13" fill="#A39C8C">[figure: sieve pipeline diagram]</text>
+  <text x="350" y="112" text-anchor="middle" font-family="SFMono-Regular, Consolas, Menlo, monospace" font-size="12" fill="#B0A990">query &#8594; retriever &#8594; reranker &#8594; generator &#8594; scorer</text>
+</svg>

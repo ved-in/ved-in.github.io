@@ -1,0 +1,576 @@
+@import "katex/dist/katex.min.css";
+@import "@fontsource/atkinson-hyperlegible/400.css";
+@import "@fontsource/atkinson-hyperlegible/700.css";
+@import "@fontsource-variable/newsreader/wght.css";
+@import "@fontsource-variable/newsreader/wght-italic.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+@layer base {
+  :root {
+    /* Shiki's "css-variables" theme (via Astro) reads these --astro-code-*
+       variables instead of shipping its own hardcoded theme.
+       --astro-code-color-background matches --code-bg exactly, so the
+       highlighted code block still looks like the plain one it replaced -
+       only the token colors are new. Colors are warmed to match the rest
+       of the palette rather than a stock GitHub theme. */
+    --astro-code-color-text: #3a362f;
+    --astro-code-color-background: #efebe1;
+    --astro-code-token-constant: #1b5e8c;
+    --astro-code-token-string: #3d7a42;
+    --astro-code-token-comment: #8a8371;
+    --astro-code-token-keyword: #a83a3a;
+    --astro-code-token-parameter: #23201b;
+    --astro-code-token-function: #7a4f94;
+    --astro-code-token-string-expression: #3d7a42;
+    --astro-code-token-punctuation: #6b6558;
+    --astro-code-token-link: #2d4f6b;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    background: theme("colors.bg");
+    color: theme("colors.body");
+    font-family: theme("fontFamily.serif");
+    font-weight: 400;
+    font-size: 16.5px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a {
+    color: theme("colors.link");
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: #9BAEBB;
+  }
+
+  a:hover {
+    text-decoration-color: theme("colors.link");
+  }
+}
+
+/* ==========================================================================
+   Layout
+   ========================================================================== */
+
+@layer components {
+  .page {
+    display: flex;
+    max-width: 940px;
+    margin: 0 auto;
+    padding: 108px 32px 140px;
+    align-items: stretch;
+  }
+
+  .sidebar,
+  .article-rail {
+    width: 130px;
+    flex: 0 0 130px;
+    text-align: right;
+    padding-right: 34px;
+  }
+
+  /* Nav, meta rows, buttons, and other UI chrome all use the sans (UI)
+     font - plain weight, a touch of letter-spacing, no italic. Reading
+     content (headings, body copy) uses the serif font instead; see below. */
+  .sidebar nav a {
+    display: block;
+    font-family: theme("fontFamily.sans");
+    font-size: 14px;
+    letter-spacing: 0.02em;
+    color: theme("colors.faint");
+    text-decoration: none;
+    margin-bottom: 22px;
+  }
+
+  .sidebar nav a.active {
+    color: theme("colors.ink");
+    font-weight: 700;
+  }
+
+  .sidebar nav a:hover {
+    color: theme("colors.ink");
+  }
+
+  /* Section Navigator: a quiet reading aid on Project/Writing article
+     pages, sitting in the same rail the nav sidebar used to occupy. */
+  .section-navigator {
+    position: sticky;
+    top: 60px;
+  }
+
+  .section-navigator a {
+    display: block;
+    font-family: theme("fontFamily.sans");
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    line-height: 1.5;
+    color: theme("colors.faint");
+    text-decoration: none;
+    margin-bottom: 14px;
+  }
+
+  .section-navigator a:hover {
+    color: theme("colors.muted");
+  }
+
+  .section-navigator a.active {
+    color: theme("colors.ink");
+    font-weight: 700;
+  }
+
+  .content {
+    flex: 1 1 auto;
+    max-width: 750px;
+    border-left: 1px solid theme("colors.border");
+    padding-left: 34px;
+    min-width: 0;
+  }
+
+  /* ==========================================================================
+     About page
+     ========================================================================== */
+
+  .page-title {
+    font-family: theme("fontFamily.serif");
+    font-size: 27px;
+    font-weight: 600;
+    color: theme("colors.ink");
+    margin: 0 0 26px;
+  }
+
+  .content p {
+    margin: 0 0 20px;
+    max-width: 620px;
+  }
+
+  .footer-links {
+    margin-top: 40px;
+  }
+
+  .footer-links a {
+    font-family: theme("fontFamily.sans");
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    color: theme("colors.faint");
+    margin-right: 18px;
+  }
+
+  /* ==========================================================================
+     Archive list (projects / writings / readings)
+     ========================================================================== */
+
+  .archive-title {
+    font-family: theme("fontFamily.serif");
+    font-size: 24px;
+    font-weight: 600;
+    color: theme("colors.ink");
+    margin: 0 0 34px;
+  }
+
+  .archive-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .archive-item {
+    margin-bottom: 34px;
+  }
+
+  .archive-row {
+    display: flex;
+    align-items: baseline;
+    text-decoration: none;
+  }
+
+  .archive-row .name {
+    font-family: theme("fontFamily.serif");
+    font-size: 17px;
+    font-weight: 600;
+    color: theme("colors.ink");
+    white-space: nowrap;
+  }
+
+  .archive-row .leader {
+    flex: 1 1 auto;
+    border-bottom: 1px dotted theme("colors.border-dotted");
+    margin: 0 9px;
+    transform: translateY(-5px);
+  }
+
+  .archive-row .date {
+    font-family: theme("fontFamily.sans");
+    font-size: 13px;
+    color: theme("colors.faint");
+    white-space: nowrap;
+  }
+
+  .archive-desc {
+    margin: 8px 0 0;
+    font-size: 15px;
+    line-height: 1.65;
+    color: theme("colors.muted");
+    max-width: 610px;
+  }
+
+  /* ==========================================================================
+     Detail page (project / writing)
+     ========================================================================== */
+
+  .back-link {
+    display: inline-block;
+    font-family: theme("fontFamily.sans");
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    color: theme("colors.muted");
+    margin-bottom: 40px;
+  }
+
+  .detail-title {
+    font-family: theme("fontFamily.serif");
+    font-size: 31px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: theme("colors.ink");
+    margin: 0 0 14px;
+    max-width: 640px;
+  }
+
+  .meta-row {
+    font-family: theme("fontFamily.sans");
+    font-size: 13px;
+    color: theme("colors.faint");
+    margin-bottom: 50px;
+  }
+
+  .meta-row a {
+    color: theme("colors.faint");
+    text-decoration-color: theme("colors.border-dotted");
+  }
+
+  .meta-row a.link-emphasis {
+    font-weight: 700;
+    color: theme("colors.link");
+  }
+
+  .meta-row .sep {
+    margin: 0 7px;
+    color: theme("colors.border-dotted");
+  }
+
+  .content h2 {
+    font-family: theme("fontFamily.serif");
+    font-size: 21px;
+    font-weight: 600;
+    color: theme("colors.ink");
+    margin: 46px 0 16px;
+  }
+
+  .content h3 {
+    font-family: theme("fontFamily.serif");
+    font-size: 17px;
+    font-weight: 600;
+    color: theme("colors.ink");
+    margin: 34px 0 12px;
+  }
+
+  .content blockquote {
+    margin: 28px 0;
+    padding-left: 20px;
+    border-left: 3px solid theme("colors.border");
+    color: theme("colors.muted");
+    font-style: italic;
+    max-width: 600px;
+  }
+
+  .content blockquote p {
+    margin-bottom: 10px;
+  }
+
+  .content ul,
+  .content ol {
+    margin: 0 0 22px;
+    padding-left: 22px;
+    max-width: 610px;
+  }
+
+  .content ul li,
+  .content ol li {
+    margin-bottom: 8px;
+  }
+
+  figcaption {
+    font-family: theme("fontFamily.sans");
+    font-size: 12.5px;
+    color: theme("colors.faint");
+    text-align: center;
+    margin-top: -18px;
+    margin-bottom: 30px;
+  }
+
+  pre {
+    position: relative;
+    border: 1px solid theme("colors.code.border");
+    padding: 16px 18px;
+    overflow-x: auto;
+    white-space: pre;
+    margin: 26px 0;
+    font-family: theme("fontFamily.mono");
+    font-size: 13px;
+    line-height: 1.6;
+    /* background-color and text color come from Shiki's inline styles,
+       which read the --astro-code-* variables defined at the top of this
+       file - that's what keeps the block's base color identical across
+       the palette while token-level syntax colors are added on top. */
+  }
+
+  .copy-button {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-family: theme("fontFamily.sans");
+    font-size: 12px;
+    color: theme("colors.faint");
+    background: none;
+    border: none;
+    padding: 4px 8px;
+    cursor: pointer;
+  }
+
+  .copy-button:hover {
+    color: theme("colors.ink");
+  }
+
+  code {
+    font-family: theme("fontFamily.mono");
+    font-size: 0.85em;
+    background: theme("colors.code.bg");
+    padding: 1px 5px;
+    color: theme("colors.body");
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+  }
+
+  table {
+    font-family: theme("fontFamily.sans");
+    border-collapse: collapse;
+    margin: 26px 0;
+    font-size: 13px;
+    max-width: 100%;
+  }
+
+  table caption {
+    text-align: left;
+    font-size: 12.5px;
+    color: theme("colors.faint");
+    margin-bottom: 8px;
+    caption-side: top;
+  }
+
+  th,
+  td {
+    border: 1px solid theme("colors.border");
+    padding: 8px 14px;
+    text-align: left;
+  }
+
+  th {
+    font-weight: 700;
+    background: theme("colors.code.bg");
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid theme("colors.border");
+    margin: 48px 0;
+  }
+
+  /* Real markdown images: a bordered, muted-box mount so a figure doesn't
+     just float loose on the page. */
+  .content img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border: 1px solid theme("colors.border");
+    background: theme("colors.code.bg");
+    margin: 30px 0;
+    cursor: zoom-in;
+  }
+
+  /* Image lightbox: a native <dialog>, so open/close, Escape-to-dismiss,
+     and focus handling all come from the browser for free. */
+  dialog#lightbox {
+    border: none;
+    padding: 0;
+    max-width: 90vw;
+    max-height: 90vh;
+    background: transparent;
+  }
+
+  dialog#lightbox::backdrop {
+    background: rgba(0, 0, 0, 0.75);
+  }
+
+  dialog#lightbox img {
+    display: block;
+    max-width: 90vw;
+    max-height: 90vh;
+  }
+
+  dialog#lightbox .lightbox-close {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 28px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  /* KaTeX: long equations scroll horizontally instead of overflowing. */
+  .katex-display {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 4px 0;
+  }
+
+  .content figure {
+    margin: 30px 0;
+  }
+
+  .content figure img {
+    margin: 0;
+  }
+
+  .content figure figcaption {
+    margin-top: 10px;
+    margin-bottom: 0;
+  }
+
+  /* GFM task lists: drop the bullet, let the checkbox lead. */
+  .content ul.contains-task-list {
+    list-style: none;
+    padding-left: 2px;
+  }
+
+  .content li.task-list-item {
+    padding-left: 0;
+  }
+
+  .content li.task-list-item input[type="checkbox"] {
+    margin-right: 9px;
+    transform: translateY(1px);
+  }
+
+  /* Inline HTML: <details> shows up in a couple of articles as a plain,
+     collapsible aside - styled to match body copy, not a UI widget. */
+  .content details {
+    margin: 22px 0;
+    padding: 14px 18px;
+    border: 1px solid theme("colors.border");
+    background: theme("colors.code.bg");
+  }
+
+  .content details summary {
+    font-family: theme("fontFamily.sans");
+    cursor: pointer;
+    font-weight: 700;
+    color: theme("colors.ink");
+  }
+
+  .content details[open] summary {
+    margin-bottom: 12px;
+  }
+
+  .content details p:last-child {
+    margin-bottom: 0;
+  }
+
+  .content abbr {
+    text-decoration: underline dotted;
+    text-underline-offset: 2px;
+    cursor: help;
+  }
+
+  /* Footnotes: keep them visually part of body copy, just smaller and
+     set off by the existing hr rule that remark-gfm renders above them. */
+  .content .footnotes {
+    font-size: 13.5px;
+    color: theme("colors.muted");
+  }
+
+  .content .footnotes p {
+    max-width: 610px;
+  }
+
+  .content .footnotes ol {
+    max-width: 610px;
+  }
+
+  .content .footnote-backref {
+    text-decoration: none;
+    margin-left: 4px;
+  }
+}
+
+/* ==========================================================================
+   Mobile
+   ========================================================================== */
+
+@media (max-width: 720px) {
+  .page {
+    flex-direction: column;
+    padding: 48px 24px 80px;
+  }
+
+  .sidebar,
+  .article-rail {
+    width: auto;
+    flex: none;
+    text-align: left;
+    padding-right: 0;
+    margin-bottom: 30px;
+  }
+
+  .article-rail {
+    display: none;
+  }
+
+  .sidebar nav {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .sidebar nav a {
+    margin-right: 18px;
+    margin-bottom: 8px;
+  }
+
+  .content {
+    border-left: none;
+    padding-left: 0;
+    max-width: 100%;
+  }
+}

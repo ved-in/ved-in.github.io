@@ -1,0 +1,30 @@
+---
+interface Props {
+  author: string;
+  date: string;
+  readingTime?: string;
+  links: { label: string; href: string; bold?: boolean }[];
+}
+const { author, date, readingTime, links } = Astro.props;
+---
+
+<div class="meta-row">
+  {author} <span class="sep">&middot;</span> {date}
+  {
+    readingTime && (
+      <>
+        {" "}
+        <span class="sep">&middot;</span> {readingTime}
+      </>
+    )
+  }
+  {
+    links.map((link) => (
+      <>
+        {" "}
+        <span class="sep">&middot;</span>{" "}
+        <a href={link.href} class:list={[{ "link-emphasis": link.bold }]}>{link.label}</a>
+      </>
+    ))
+  }
+</div>

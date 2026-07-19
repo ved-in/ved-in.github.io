@@ -1,0 +1,21 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ArchiveList from "../../components/ArchiveList.astro";
+import { getCollection } from "astro:content";
+import { formatArchiveDate, byDateDesc } from "../../lib/format";
+
+const entries = await getCollection("projects", ({ data }) =>
+  import.meta.env.PROD ? !data.draft : true
+);
+
+const items = entries.sort(byDateDesc).map((entry) => ({
+  name: entry.data.archiveTitle ?? entry.data.title,
+  href: `/projects/${entry.slug}`,
+  date: formatArchiveDate(entry.data.date),
+  description: entry.data.description,
+}));
+---
+
+<BaseLayout title="Projects - ved-in" active="projects">
+  <ArchiveList title="Projects" entries={items} />
+</BaseLayout>

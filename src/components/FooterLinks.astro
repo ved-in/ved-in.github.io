@@ -1,0 +1,13 @@
+---
+import type { FooterLink } from "../data/types";
+
+interface Props {
+  links: FooterLink[];
+}
+
+const { links } = Astro.props;
+---
+
+<div class="footer-links">
+  {links.map((link) => <a href={link.href}>{link.label}</a>)}
+</div>

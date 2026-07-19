@@ -1,0 +1,43 @@
+---
+title: "Warmpath: Pre-Warming Caches Ahead of Traffic Spikes"
+archiveTitle: "Warmpath"
+date: 2025-06-20
+description: "A request-level cache warmer that pre-populates hot keys ahead of traffic spikes using historical load patterns."
+readingTime: "2 min read"
+links:
+  - label: "GitHub"
+    href: "#"
+---
+
+Every big traffic spike we'd had followed the same shape: a cold cache, a burst of requests, and a few minutes of elevated latency while the cache filled itself the slow way, one miss at a time. Warmpath exists to make that fill happen *before* the spike, not during it.
+
+## The idea
+
+Warmpath looks at load from the same time window on previous days, ranks keys by how often they were requested, and issues warming reads for the top percentile a few minutes ahead of a scheduled or predicted spike:
+
+```bash
+warmpath schedule \
+  --window "09:00-09:15" \
+  --lookback 14d \
+  --top-percentile 5 \
+  --lead-time 3m
+```
+
+## Why lead time mattered more than I expected
+
+My first version warmed the cache immediately before the spike's *known* start time. That was close to useless - by the time warming finished, the spike had already started missing on the keys still in flight. Moving the lead time earlier, and warming in parallel batches instead of sequentially, cut the miss rate during the first minute of a spike from around 40% to under 5%.
+
+| Lead time | Batching | First-minute miss rate |
+| --- | --- | --- |
+| 0 min (at spike start) | sequential | ~40% |
+| 3 min before | sequential | ~18% |
+| 3 min before | parallel (8 workers) | ~4% |
+
+## Status
+
+- [x] Historical lookback and percentile ranking
+- [x] Parallel warming with configurable concurrency
+- [ ] Automatic lead-time tuning based on measured warm duration
+- [ ] Support for warming derived/aggregated keys, not just raw lookups
+
+It's narrow on purpose - it only knows about read-heavy, predictable traffic patterns - but for the handful of endpoints that fit that shape, it turned our worst latency spikes into non-events.

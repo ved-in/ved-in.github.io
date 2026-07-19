@@ -1,0 +1,46 @@
+---
+// Used only by Project and Writing detail pages. Unlike BaseLayout, this
+// layout doesn't render the site's nav sidebar - the page reads like a
+// document, not a page on a website. The only navigation is the "Back to
+// X" link the page itself puts at the top of <slot />, and, for longer
+// articles, the Section Navigator in the rail the sidebar used to occupy.
+import "../styles/global.css";
+import { ViewTransitions } from "astro:transitions";
+import Lightbox from "../components/Lightbox.astro";
+import SectionNavigator from "../components/SectionNavigator.astro";
+
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  title: string;
+  headings: Heading[];
+}
+
+const { title, headings } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <ViewTransitions />
+  </head>
+  <body>
+    <div class="page">
+      <aside class="article-rail">
+        <SectionNavigator headings={headings} />
+      </aside>
+      <main class="content">
+        <slot />
+      </main>
+    </div>
+    <Lightbox />
+    <script src="/scripts/article.js" defer is:inline></script>
+  </body>
+</html>

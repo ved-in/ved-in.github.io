@@ -1,0 +1,11 @@
+---
+// Markup only - public/scripts/article.js fills in the image and calls
+// dialog.showModal() when a content image is clicked. Using a native
+// <dialog> means Escape-to-close, focus handling, and the backdrop all
+// come from the browser instead of hand-rolled JS.
+---
+
+<dialog id="lightbox">
+  <button type="button" class="lightbox-close" aria-label="Close image">&times;</button>
+  <img id="lightbox-image" src="" alt="" />
+</dialog>

@@ -1,0 +1,33 @@
+---
+// A minimal "section navigator," inspired by ChatGPT's conversation
+// outline: just the major (h2) headings, nothing nested. Astro already
+// gives every heading a slug/id when rendering markdown, so clicking a
+// link here is a plain <a href="#slug">. Smooth scrolling comes from the
+// `scroll-behavior: smooth` rule on <html> - no JS needed for that part.
+// The only JS involved (see public/scripts/article.js) is highlighting
+// whichever section is currently on screen.
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  headings: Heading[];
+}
+
+const { headings } = Astro.props;
+const sections = headings.filter(
+  (heading) => heading.depth === 2 && heading.slug !== "footnote-label"
+);
+---
+
+{
+  sections.length > 1 && (
+    <nav class="section-navigator" aria-label="Sections in this article">
+      {sections.map((section) => (
+        <a href={`#${section.slug}`}>{section.text}</a>
+      ))}
+    </nav>
+  )
+}

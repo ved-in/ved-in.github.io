@@ -1,0 +1,40 @@
+---
+title: "Tinyshard: A Minimal Sharded Key-Value Store"
+archiveTitle: "Tinyshard"
+date: 2025-11-08
+description: "A minimal sharded key-value store built to learn how distributed databases route requests and rebalance data."
+readingTime: "2 min read"
+links:
+  - label: "GitHub"
+    href: "#"
+---
+
+Tinyshard is a key-value store split across four nodes, built to answer one question: when a database says it "rebalances shards," what is actually moving, and when?
+
+## Routing a key to a shard
+
+Every key is hashed and routed with consistent hashing rather than a plain `hash(key) % node_count`, specifically so that adding a fifth node doesn't reshuffle *every* key - only the fraction that should move to the new node.
+
+```python
+def shard_for(key: str, ring: list[int]) -> int:
+    h = hash_to_ring_position(key)
+    for node_position in ring:
+        if h <= node_position:
+            return node_position
+    return ring[0]  # wrap around
+```
+
+## Rebalancing, watched directly
+
+The interesting part wasn't the hashing, it was instrumenting a live rebalance and watching exactly which keys moved. With plain modulo hashing, adding a fifth node to a four-node cluster moved **about 80%** of all keys. With consistent hashing and 100 virtual nodes per physical node, the same operation moved close to the theoretical minimum of 20%.
+
+> The difference between "rebalancing" and "re-sharding the entire dataset" turned out to be a few dozen lines of code and one different hash function.
+
+## Where it stands
+
+- [x] Consistent hashing with virtual nodes
+- [x] Live rebalance on node join
+- [ ] Rebalance on node departure (currently requires a manual trigger)
+- [ ] Replication across shards for fault tolerance
+
+It's a toy, not a database - there's no durability story at all, on purpose - but it made shard rebalancing something I've actually watched happen rather than something I've only read about.

@@ -1,0 +1,18 @@
+---
+import type { ArchiveEntry } from "../data/types";
+
+interface Props {
+  entry: ArchiveEntry;
+}
+
+const { entry } = Astro.props;
+---
+
+<li class="archive-item">
+  <a class="archive-row" href={entry.href}>
+    <span class="name">{entry.name}</span>
+    <span class="leader"></span>
+    <span class="date">{entry.date}</span>
+  </a>
+  <p class="archive-desc" set:html={entry.description} />
+</li>

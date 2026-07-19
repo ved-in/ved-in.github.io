@@ -1,0 +1,45 @@
+---
+title: "Quorum: A Toy Raft Implementation"
+archiveTitle: "Quorum"
+date: 2026-03-14
+description: "A toy implementation of Raft, written to understand leader election and log replication from first principles."
+readingTime: "2 min read"
+links:
+  - label: "GitHub"
+    href: "#"
+---
+
+I've read the Raft paper twice and nodded along both times without being able to say exactly why a randomized election timeout prevents split votes. So I wrote Quorum: a three-node Raft implementation with no networking library, no persistence, and no ambitions beyond running on my laptop long enough to watch leader election happen.
+
+## Leader election, actually happening
+
+Each node is a small state machine with three states:
+
+<figure>
+  <img src="/images/quorum-election.svg" alt="Quorum leader election states: follower, candidate, leader" />
+  <figcaption>Fig 1. - follower &#8594; candidate &#8594; leader, driven entirely by timeouts and votes.</figcaption>
+</figure>
+
+The part that finally made it click wasn't the state diagram, it was adding deliberate jitter to the election timeout and watching two nodes race each other into candidacy, split the vote, time out, and re-run the election with a *different* random delay until one of them won cleanly. The randomness isn't a detail - it's the entire mechanism that keeps the cluster from livelocking.
+
+```go
+func (n *Node) runElectionTimer() {
+    timeout := randomBetween(150*time.Millisecond, 300*time.Millisecond)
+    if n.sinceLastHeartbeat() > timeout {
+        n.becomeCandidate()
+    }
+}
+```
+
+## What I got wrong first
+
+My first version had every node use the *same* fixed timeout. It deadlocked almost every run - every follower became a candidate at exactly the same moment, every vote split, forever. It's an obvious bug once you've seen it and a genuinely confusing one before you have.
+
+## What's left
+
+- [x] Leader election with randomized timeouts
+- [x] Log replication for a single in-memory key-value store
+- [ ] Snapshotting and log compaction
+- [ ] Membership changes (adding or removing a node without downtime)
+
+Quorum will probably never handle a real network partition gracefully, and that's fine - it did its job, which was making the paper make sense.

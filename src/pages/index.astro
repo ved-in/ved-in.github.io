@@ -1,0 +1,25 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import FooterLinks from "../components/FooterLinks.astro";
+
+const footerLinks = [
+  { label: "github", href: "https://github.com/ved-in" },
+  { label: "X", href: "#" },
+  { label: "email", href: "mailto:vedantjain231@gmail.com" },
+];
+---
+
+<BaseLayout title="ved-in" active="about">
+  <h1 class="page-title">ved-in</h1>
+
+  <p>
+    Joining the B.Tech Computer Science and Engineering program at IIIT
+    Delhi this fall.
+  </p>
+
+  <p>
+    A small corner of the internet just for me, for my projects, writings, and whatever else seems worth sharing.
+  </p>
+
+  <FooterLinks links={footerLinks} />
+</BaseLayout>

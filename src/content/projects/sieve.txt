@@ -1,0 +1,105 @@
+---
+title: "Sieve: An Evaluation Harness for RAG Pipelines"
+archiveTitle: "Sieve"
+date: 2026-07-01
+description: "An evaluation harness for retrieval-augmented generation pipelines, built to catch silent regressions before they reach production."
+readingTime: "5 min read"
+links:
+  - label: "design doc"
+    href: "#"
+  - label: "GitHub"
+    href: "#"
+  - label: "X"
+    href: "#"
+---
+
+I wanted a way to know whether a change to our retrieval pipeline made things better or worse, without staring at a diff of outputs and guessing. Most of the evaluation tooling I found was either tied to a specific vector store or too coarse to catch the failures that actually mattered to us, so I built **Sieve**: a small harness that scores retrieval and generation *separately*, on a fixed set of questions we care about.
+
+The first version was a single script that ran a question set against the pipeline and diffed the outputs by hand. That was fine for a week. It stopped being fine the day a change silently dropped recall on a whole category of questions and nobody noticed until a customer did.
+
+This post walks through what I built, what I got wrong along the way, and the parts of the design that ended up mattering more than I expected.
+
+## The whole pipeline
+
+Before getting into any one piece, it helps to see the whole thing at once:
+
+<figure>
+  <img src="/images/sieve-pipeline.svg" alt="Sieve pipeline: query through retriever, reranker, generator, and scorer" />
+  <figcaption>Fig 1. - query &#8594; retriever &#8594; reranker &#8594; generator &#8594; scorer.</figcaption>
+</figure>
+
+Each stage writes its intermediate output to a run log, which is what makes it possible to tell whether a regression came from retrieval or from generation.
+
+## Scoring retrieval separately from generation
+
+The core decision was to score two things independently rather than one blended metric:
+
+- Retrieval quality - did the right documents show up in the top k, regardless of what the model did with them
+- Generation quality - given the same retrieved context, did the answer actually use it correctly
+
+> A pipeline can get worse in one stage while the aggregate score stays flat, if the other stage happens to compensate. Separating the two scores is what made that visible.
+
+### Retrieval scoring
+
+Retrieval is scored against a labeled set of question–document pairs using *recall at k*. Formally, for a set of retrieved documents $D_k$ (the top $k$ results) and relevant documents $R$:
+
+$$
+\text{recall@k} = \frac{|D_k \cap R|}{|R|}
+$$
+
+Which is a lot of notation for something that's three lines of code:
+
+```python
+def recall_at_k(retrieved, relevant, k=5):
+    top_k = retrieved[:k]
+    hits = sum(1 for doc in top_k if doc in relevant)
+    return hits / len(relevant)
+```
+
+This is intentionally simple. The temptation is to reach for something like NDCG[^ndcg] right away, but recall at k was enough to catch every regression we hit in the first three months, and it is easy to explain to a teammate who has never seen the harness before.
+
+### Generation scoring
+
+Generation is scored with a small rubric applied by a judge model, checking three things: whether the answer is supported by the retrieved context, whether it contradicts anything in that context, and whether it actually answers the question asked.
+
+<details>
+<summary>The exact judge prompt, if you want to steal it</summary>
+
+The judge is given the question, the retrieved passages, and the generated answer, and asked to return a JSON object with a boolean for each of the three checks plus a one-sentence reason. Keeping the reason mandatory, even though it isn't scored, made the judge noticeably more consistent - it seems to think better when it has to explain itself first.
+
+</details>
+
+<table>
+  <caption>Rubric dimensions and what they catch</caption>
+  <thead>
+    <tr><th>Dimension</th><th>Catches</th><th>Weight</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Supported</td><td>Claims not present in retrieved context</td><td>0.4</td></tr>
+    <tr><td>Consistent</td><td>Direct contradictions of the context</td><td>0.4</td></tr>
+    <tr><td>On-topic</td><td>Answers that drift from the question</td><td>0.2</td></tr>
+  </tbody>
+</table>
+
+## What broke first
+
+The first real regression Sieve caught was not in either model. It was a reranker change that quietly reordered results for a whole category of multi-hop questions, which dropped recall at 5 from 0.81 to 0.54 for that category alone while the overall average barely moved.
+
+That is the failure mode this whole project exists to catch: a change that looks fine on average and is not fine at all for the slice of traffic that matters. This is exactly the kind of regression a single <abbr title="Retrieval-Augmented Generation">RAG</abbr> quality score would have hidden.
+
+## Status
+
+- [x] Score retrieval and generation separately
+- [x] Break scores down by question category
+- [ ] Version the eval set alongside the pipeline, not just alongside the code
+- [ ] Run the judge model twice per question and flag disagreement
+
+## What I'd change
+
+1. Track per-category scores from day one instead of bolting them on after the first incident
+2. Version the question set itself, not just the pipeline, since the set grows every time something breaks
+3. Run the judge model twice and flag disagreement, rather than trusting a single pass
+
+Sieve is still small and still mine, but it has already paid for itself a few times over. The code is on GitHub if you want to look at how the scoring actually works.
+
+[^ndcg]: Normalized Discounted Cumulative Gain - a ranking metric that weights hits near the top of the list more heavily than hits further down. Correct for search ranking, more machinery than we needed here.

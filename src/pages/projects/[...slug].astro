@@ -1,0 +1,39 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content";
+import ArticleLayout from "../../layouts/ArticleLayout.astro";
+import BackLink from "../../components/BackLink.astro";
+import DetailMeta from "../../components/DetailMeta.astro";
+import { formatDetailDate } from "../../lib/format";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("projects", ({ data }) =>
+    import.meta.env.PROD ? !data.draft : true
+  );
+  return entries.map((entry) => ({
+    params: { slug: entry.slug },
+    props: { entry },
+  }));
+}
+
+interface Props {
+  entry: CollectionEntry<"projects">;
+}
+
+const { entry } = Astro.props;
+const { Content, headings } = await entry.render();
+---
+
+<ArticleLayout title={`${entry.data.title} - ved-in`} headings={headings}>
+  <BackLink href="/projects" label="Back to Projects" />
+
+  <h1 class="detail-title">{entry.data.title}</h1>
+
+  <DetailMeta
+    author="ved-in"
+    date={formatDetailDate(entry.data.date)}
+    readingTime={entry.data.readingTime}
+    links={entry.data.links}
+  />
+
+  <Content />
+</ArticleLayout>

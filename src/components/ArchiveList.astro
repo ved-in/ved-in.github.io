@@ -1,0 +1,17 @@
+---
+import ArchiveItem from "./ArchiveItem.astro";
+import type { ArchiveEntry } from "../data/types";
+
+interface Props {
+  title: string;
+  entries: ArchiveEntry[];
+}
+
+const { title, entries } = Astro.props;
+---
+
+<h1 class="archive-title">{title}</h1>
+
+<ul class="archive-list">
+  {entries.map((entry) => <ArchiveItem entry={entry} />)}
+</ul>
