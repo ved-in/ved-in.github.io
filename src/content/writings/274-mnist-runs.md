@@ -26,9 +26,9 @@ But reading wasn't enough, so I took the simplest dataset I know (MNIST) and ran
 
 ![Validation accuracy distribution by learning rate](274-mnist-runs/01_lr_accuracy_boxplot.png)
 
+Before this, I'd trained a plain polynomial regression model, no Adam, just gradient descent. Learning rate was pretty much the only knob I had. Nudge it a little and accuracy swung a lot. I half-expected the same thing to hold for MNIST. That's part of why I built it as 39 architectures x 7 learning rates instead of just picking one good tried out lr like 1e-3.
 
-Honestly, I thought this graph would be squeezed together horizontally way more than it actually is. Adam optimization made the range of learning rates that work decently surprisingly wide.
-
+I thought this graph would be squeezed together horizontally way more than it actually is. Adam optimization made the range of learning rates that work decently surprisingly wide.
 
 5e-4 and 1e-3 are basically twins. Negligible difference, though 1e-3 features less variance. 5e-3 is the worst learning rate for 31/39 architectures. Not literally the worst *every* single time, for a few architectures, 5e-5 does worse.
 
@@ -63,7 +63,7 @@ Why does a higher LR cause more dead neurons? Because…
 ![A large gradient flowing through a ReLU neuron could cause the weights to update in such a way that the neuron will never activate on any datapoint again. If this happens, then the gradient flowing through the unit will forever be zero from that point on. That is, the ReLU units can irreversibly die during training since they can get knocked off the data manifold. For example, you may find that as much as 40% of your network can be "dead" (i.e., neurons that never activate across the entire training dataset) if the learning rate is set too high. With a proper setting of the learning rate, this is less frequently an issue.](274-mnist-runs/cs231n_stanford_relu_sensitivity.png)
 
 
-this explanation is straight from the CS231n Stanford lecture notes, linked [here](https://cs231n.github.io/neural-networks-1/), and it perfectly describes why the dying happens. Seeing the graph helps understand this.
+this explanation is straight from the CS231n Stanford lecture notes, linked [here](https://cs231n.github.io/neural-networks-1/), and it perfectly describes why the dying happens.
 
 
 ## Width vs Depth
@@ -101,14 +101,15 @@ The top model of all 39 architectures is `deep_funnel_lg`, with an accuracy of 9
 Does depth actually buy anything once you account for how big the network is? Lining up similarly sized networks of different depths and comparing them directly, size seems to explain almost all of the difference. Depth on its own barely moves accuracy either way once two networks are in the same size range.
 
 
-What DOES move it is shape. A network that tapers down as it goes (like a funnel) tends to edge out a same-sized flat or uniform-width network.
+What does seem to matter is shape. The funnel-shaped networks kept landing near the top, and I don't have a clean reason why. I checked depth and params separately, but not shape, so I can't rule out it's actually one of those in disguise.
 
+> 8 of the top 10 architectures are funnels, despite funnel being only 16 of the 39 shapes I tried. See the appendix for more details
 
-So "width beats depth" isn't quite right. It feels closer to: depth is almost free if you taper it on the way down, and it's a real cost if you keep the walls flat and push past three layers. There's still a practical takeaway worth holding onto: a single flat layer gets you most of the way there for a fraction of the cost of anything fancier. Depth can occasionally buy a tiny edge at the very top of the leaderboard. It just isn't what explains why some architectures in the middle of the pack underperform.
+Best guess I've got isn't even from my own data. A recent paper on tapered language models by [Reza Bayat et al](https://arxiv.org/abs/2606.23670) found that in transformer LLMs, later layers mostly just reinforce what's already there instead of adding anything new. Give the early layers more capacity and the later ones less, and the model does better at the same total size. If that's true for a plain MLP too, a funnel naturally matches that better than a uniform stack does.
 
+That's someone else's finding on a totally different kind of model, not something I actually tested here.
 
-I think this is just because MNIST is a simple dataset. A stack of layers will help an MLP learn more complex features, but here that benefit is marginal. Most of the networks were already approaching 100% training accuracy, suggesting they had more than enough capacity for MNIST.
-
+The effect is also small, which makes sense on MNIST. Most of these networks already have enough capacity to solve the task, so there is relatively little left for additional depth or width to contribute.
 
 ![Accuracy vs depth, all architectures](274-mnist-runs/13_depth_vs_accuracy.png)
 
@@ -134,10 +135,10 @@ My first guess for why: vanishing gradients. The gradients shrink on their way b
 ![Gradient norms vs dead-neuron ratio, fixed learning rate](274-mnist-runs/10_gradient_vs_deadneurons_fixed_lr.png)
 
 
-The gradient norms don't really tell a clean story. I was expecting to see them steadily shrink as depth increased, but they don't. The deepest network actually ends up with the largest gradients near the input. I don't see much evidence from the final gradient norms that vanishing gradients are the main thing driving the drop in accuracy here.
+The gradient norms don't really tell a clean story. I was expecting to see them steadily shrink as depth increased, but they don't. The deepest network actually ends up with the largest gradients near the input. I don't see much evidence from the final gradient norms that vanishing gradients are the main thing driving the drop in accuracy here. So I looked for something that matched the accuracy drop more directly
 
 
-The dead-neuron data, however, shows a much clearer relation with depth. Dead-neuron fraction climbs steadily with every layer added: 48.4% at depth 2, 57.0% at depth 3, 61.1% at depth 4, 62.1% at depth 5. Cleanly monotonic, at the exact same learning rate, measured on each network's actual final weights. Every layer, at every depth, ends up with something like half to two-thirds of its 64 units outputting exactly zero. It almost feels like a bad game of telephone. Each layer starts with a large chunk of its neurons permanently silent, so the next layer has fewer active features to build on. Stack enough of those layers together, and it's easy to imagine the representation gradually becoming less expressive-not because the gradients necessarily disappeared, but because so much of each layer has already gone quiet.
+The dead-neuron data, show a much clearer relation with depth. Dead-neuron fraction climbs steadily with every layer added: 48.4% at depth 2, 57.0% at depth 3, 61.1% at depth 4, 62.1% at depth 5. Cleanly monotonic, at the exact same learning rate, measured on each network's actual final weights. Every layer, at every depth, ends up with something like half to two-thirds of its 64 units outputting exactly zero. It almost feels like a bad game of telephone. Each layer starts with a large chunk of its neurons permanently silent, so the next layer has fewer active features to build on. Stack enough of those layers together, and it's easy to imagine the representation gradually becoming less expressive-not because the gradients necessarily disappeared, but because so much of each layer has already gone quiet.
 
 
 This explanation makes the most sense to me, but I'm not convinced it's the whole story.
@@ -274,8 +275,16 @@ So the finding can't be "pruning works" or "pruning doesn't work." It's that pru
 
 ### Results (pre-pruning)
 
+| Shape | Architectures | Best acc | Mean acc | In top 10 | In bottom 10 |
+|---|---|---|---|---|---|
+| funnel | 16 | 98.62% (`deep_funnel_lg`) | 98.46% | 8 | 1 |
+| uniform | 18 | 98.57% (`xxlarge_flat` / `xlarge_flat`, tied) | 98.11% | 2 | 8 |
+| expanding | 3 | 98.37% (`expand_lg`) | 98.16% | 0 | 1 |
+| mixed | 2 | 98.42% (`bottleneck_md`) | 98.32% | 0 | 0 |
 
-Each row shows that architecture's *best* run across its 7 learning rates, pre-pruning. You can find more data for these in the `logs.zip` file, which I've linked to at the top of the post.
+Funnel is only 16 of the 39 architectures, but it takes 8 of the top 10 spots. Uniform is the biggest family (18) and also owns 8 of the bottom 10 -- mostly the `narrow-deep` and `small/tiny flat` runs dragging it down. Expanding and mixed barely show up either way; too few of them to say much beyond "they sit in the middle."
+
+Each row below shows that architecture's *best* run across its 7 learning rates. You can find more data for these in the `logs.zip` file, which I've linked to at the top of the post.
 
 
 | # | Architecture | Shape | Depth | Hidden layer sizes | Params | Best LR | Best val. acc (%) | Train time (s) |
