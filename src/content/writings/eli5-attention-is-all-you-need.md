@@ -1,7 +1,7 @@
 ---
-title: "eli5 - Attention is all you need"
+title: "Attention is all you need, Unpacked"
 date: 2026-10-01
-description: "A from-scratch, eli5 walkthrough of the Transformer."
+description: "A from-scratch walkthrough of the Transformer."
 readingTime: "20 min read"
 ---
 
@@ -37,7 +37,7 @@ However, processing tokens sequentially — like a Markov chain (rhetorically) �
 
 Before this paper, several attempts had been made to attenuate this sequential nature. Some of these attempts are [Extended Neural GPU](https://proceedings.neurips.cc/paper/2016/hash/fb8feff253bb6c834deb61ec76baa893-Abstract.html), [ByteNet](https://arxiv.org/abs/1610.10099), and [ConvS2S](https://arxiv.org/abs/1705.03122) — they made things more parallel, but words far apart still took many steps to connect — and here we are introduced to the solution — Transformers. But before that, we should first understand the attention mechanism. (Attention already existed as a helper bolted in RNNs. This paper's hypothesis was to throw the RNN away entirely, using just Attention — hence "all you need".)
 
-![RNN, LSTM, GRU slander](eli5-attention-is-all-you-need/image-4.png)
+![RNN, LSTM, GRU slander](attention-is-all-you-need-unpacked/image-4.png)
 
 ## Attention Mechanism (not cognitive)
 
@@ -49,10 +49,10 @@ $$
  [3666, 1438, 318, 410, 276, 12, 259, 13, 1867, 338, 534, 1438, 30]
 $$
 
-![input](eli5-attention-is-all-you-need/image.png)
-![output](eli5-attention-is-all-you-need/image-1.png)
+![input](attention-is-all-you-need-unpacked/image.png)
+![output](attention-is-all-you-need-unpacked/image-1.png)
 
-You can try this yourself at [tiktokenizer](eli5-attention-is-all-you-need/https://tiktokenizer.vercel.app/?model=gpt2). GPT-2 uses [Byte-Pair Encoding](https://www.geeksforgeeks.org/nlp/byte-pair-encoding-bpe-in-nlp/).
+You can try this yourself at [tiktokenizer](attention-is-all-you-need-unpacked/https://tiktokenizer.vercel.app/?model=gpt2). GPT-2 uses [Byte-Pair Encoding](https://www.geeksforgeeks.org/nlp/byte-pair-encoding-bpe-in-nlp/).
 
 An ID is just a name tag; the number itself means nothing. Each of the 13 token IDs is looked up by a table and encoded into a vector (a list of numbers) of size $768$ (that's GPT-2's chosen dimension — other models use other sizes):
 
@@ -133,11 +133,11 @@ $$
 
 In plain words: each token's new vector is a blend of every token's Value vector, mixed in the percentages softmax gave. The new vector for "it" might be 70% *"animal"*, 20% *"street"*, and the remaining 10% being a mixed bag. Same number of vectors as before, but each one now knows about its context. And none of this waits on anything else — it's all big matrix multiplications that a GPU can do in one shot. That's the speed-up from earlier.
 
-![dot products?](eli5-attention-is-all-you-need/image-10.png)
+![dot products?](attention-is-all-you-need-unpacked/image-10.png)
 
 At its core, it's all dot products, measured the same way. But, NO ONE. NOBODY really knows why this all works. We do understand *why* it's useful, but what we don't have is a complete mechanistic explanation of how trained Transformers implement what we observe. Come up with your own intuition. Here's one that's much better than anything I could frame.
 
-![alt text](eli5-attention-is-all-you-need/image-2.png)
+![alt text](attention-is-all-you-need-unpacked/image-2.png)
 Source: https://www.reddit.com/r/learnmachinelearning/comments/1fbyvps/why_attention_works/
 
 ## Why Attention wins
@@ -166,23 +166,23 @@ The paper uses $h = 8$ heads with $d_k = d_v = d_{\text{model}}/h = 64$ (the pap
 
 Below is a diagram depicting scaled dot-product Attention and multi-head Attention.
 
-![alt text](eli5-attention-is-all-you-need/image-12.png)
+![alt text](attention-is-all-you-need-unpacked/image-12.png)
 
 ## Model Architecture
 
-![alt text](eli5-attention-is-all-you-need/image-5.png)
+![alt text](attention-is-all-you-need-unpacked/image-5.png)
 
 Okay, that's pretty daunting, right? But you already know a few of these boxes: the embeddings, the positional encoding, and the multi-head Attention.
 
 Let's break it into two parts: the Encoder and Decoder. The encoder reads and understands the input sentence, and the decoder writes the output while looking back at what the encoder understood.
 
-![alt text](eli5-attention-is-all-you-need/image-6.png)
+![alt text](attention-is-all-you-need-unpacked/image-6.png)
 
 The encoder is highlighted green, while the decoder is highlighted red.
 
 ### 1. Encoder — highlighted green
 
-![alt text](eli5-attention-is-all-you-need/image-7.png)
+![alt text](attention-is-all-you-need-unpacked/image-7.png)
 
 If you look at it as a step-by-step process, it's quite easy to think about it.
 
@@ -202,7 +202,7 @@ Let us represent the output of the encoder by $H_{\text{enc}}$. It's still one v
 
 ### 2. Decoder — highlighted red
 
-![alt text](eli5-attention-is-all-you-need/image-8.png)
+![alt text](attention-is-all-you-need-unpacked/image-8.png)
 
 I believe this feels pretty *okay* to look at now, right?
 
@@ -212,7 +212,7 @@ Initially, there is no output. But we use special tokens to mark the start and e
 
 The process starts at the bottom of the image. here
 
-![alt text](eli5-attention-is-all-you-need/image-9.png)
+![alt text](attention-is-all-you-need-unpacked/image-9.png)
 
 Suppose our input is the same as before, and our task is to translate it to Latin. (To keep things readable, I'll write whole words below instead of the 13 tokens. These are raw words, not the embedded $X$ from earlier.)
 
@@ -244,7 +244,7 @@ The two arrows from the encoder block are $K$ and $V$, both computed from $H_{\t
 
 After our decoder block, we have a tensor of size $N_{\text{input}} \times d_{\text{model}}$. This is multiplied by a weight matrix of size $d_{\text{model}} \times \mathcal{V}$ where $\mathcal{V}$ is your vocabulary size.
 
-![alt text](eli5-attention-is-all-you-need/image-11.png)
+![alt text](attention-is-all-you-need-unpacked/image-11.png)
 
 This gives us a tensor of size $N_{\text{input}} \times \mathcal{V}$. For each row, we apply the softmax function, yielding a probability for every token in the vocabulary. Generally, we consider only the last row of our logit tensor (the raw scores before softmax), since that row predicts what comes after everything so far, and apply argmax (pick the most likely token) to it to get our next token. Chatbots usually sample from the top few options instead, which is why they don't always answer the same way. This is repeated however many times required for the model to finish its response till it outputs the end token, `<END>.`
 
@@ -256,7 +256,7 @@ What about that *masked* part, and the "shifted right" label on the diagram? Tha
 
 Now, you don't depend on a hidden representation that updates over time. But this inherent sequential nature persisted during generation. Well, for that, we have diffusion models, which are *not* sequential in that way; instead of 1 token at a time, they output an entire block of tokens at once. Outputting is not the right term here; refining is. It's still a transformer underneath, just used differently: start with a rough draft of the whole block, and keep improving it.
 
-Take, for example, [DiffusionGemma](eli5-attention-is-all-you-need/https://blog.google/innovation-and-ai/technology/developers-tools/diffusion-gemma-faster-text-generation/). Google reports up to 4× faster generation under its benchmark conditions, while also describing its overall output quality as lower than standard Gemma 4. It's meant to make better use of consumer hardware (local, low-concurrency inference).
+Take, for example, [DiffusionGemma](attention-is-all-you-need-unpacked/https://blog.google/innovation-and-ai/technology/developers-tools/diffusion-gemma-faster-text-generation/). Google reports up to 4× faster generation under its benchmark conditions, while also describing its overall output quality as lower than standard Gemma 4. It's meant to make better use of consumer hardware (local, low-concurrency inference).
 
 <video controls src="https://storage.googleapis.com/gweb-uniblog-publish-prod/original_videos/Diffusion_Process_3_1.mp4" title="DiffusionGemma"></video>
 
@@ -278,6 +278,6 @@ remember that paragraph that wouldn't fit into 2 words, or 20? The answer was no
 
 The paper is only ~15 pages. Look at the attention visualizations below. They are taken directly from the paper's appendix. Each line shows how much one word attends to another (thicker means more), and different colors represent different heads. You can see different heads seemingly picking up things like which noun "its" refers to.
 
-![alt text](eli5-attention-is-all-you-need/appendix-fig-3.png)
-![alt text](eli5-attention-is-all-you-need/appendix-fig-4.jpg)
-![alt text](eli5-attention-is-all-you-need/appendix-fig-5.png)
+![alt text](attention-is-all-you-need-unpacked/appendix-fig-3.png)
+![alt text](attention-is-all-you-need-unpacked/appendix-fig-4.jpg)
+![alt text](attention-is-all-you-need-unpacked/appendix-fig-5.png)
