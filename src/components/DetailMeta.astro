@@ -3,9 +3,9 @@ interface Props {
   author: string;
   date: string;
   readingTime?: string;
-  links: { label: string; href: string; bold?: boolean }[];
+  links?: { label: string; href: string; bold?: boolean }[];
 }
-const { author, date, readingTime, links } = Astro.props;
+const { author, date, readingTime, links = [] } = Astro.props;
 ---
 
 <div class="meta-row">

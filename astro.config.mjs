@@ -16,7 +16,7 @@ export default defineConfig({
     }),
   ],
   markdown: {
-    smartypants: false,
+    smartypants: true,
     // GitHub Flavored Markdown: tables, strikethrough, task lists,
     // autolinks, and footnotes.
     gfm: true,
