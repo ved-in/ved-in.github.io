@@ -16,6 +16,9 @@ const base = {
   date: z.date(),
   description: z.string(),
   readingTime: z.string().optional(), // e.g. "6 min read" - written by hand, not computed
+  // Social/link-preview image. Root-relative path into public/ (e.g.
+  // "/images/og/foo.png") or an absolute URL. Omit to emit no og:image.
+  image: z.string().optional(),
   draft: z.boolean().default(false),
   links: z
   .array(z.object({ label: z.string(), href: z.string(), bold: z.boolean().optional() }))

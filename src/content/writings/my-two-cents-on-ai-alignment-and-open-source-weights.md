@@ -3,6 +3,7 @@ title: "My two cents on AI alignment and open source weights"
 date: 2026-11-08
 description: "sort of a rant by someone who just got exposed to AI alignment and such."
 readingTime: "2-3 min read"
+image: "/images/og/my-two-cents-on-ai-alignment-and-open-source-weights.png"
 ---
 
 I gathered most of this from discussions on a Discord server, so some points may not be fully accurate.

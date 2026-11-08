@@ -164,9 +164,9 @@ declare module 'astro:content' {
   collection: "writings";
   data: InferEntrySchema<"writings">
 } & { render(): Render[".md"] };
-"my-two-cents-on-ai-alignment.md": {
-	id: "my-two-cents-on-ai-alignment.md";
-  slug: "my-two-cents-on-ai-alignment";
+"my-two-cents-on-ai-alignment-and-open-source-weights.md": {
+	id: "my-two-cents-on-ai-alignment-and-open-source-weights.md";
+  slug: "my-two-cents-on-ai-alignment-and-open-source-weights";
   body: string;
   collection: "writings";
   data: InferEntrySchema<"writings">

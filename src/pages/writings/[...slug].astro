@@ -23,7 +23,13 @@ const { entry } = Astro.props;
 const { Content, headings } = await entry.render();
 ---
 
-<ArticleLayout title={`${entry.data.title} - ved-in`} headings={headings}>
+<ArticleLayout
+  title={`${entry.data.title} - ved-in`}
+  headings={headings}
+  description={entry.data.description}
+  image={entry.data.image}
+  publishedTime={entry.data.date.toISOString()}
+>
   <BackLink href="/writings" label="Back to Writings" />
 
   <h1 class="detail-title">{entry.data.title}</h1>

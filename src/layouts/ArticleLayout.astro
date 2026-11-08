@@ -7,6 +7,7 @@
 import "../styles/global.css";
 import { ViewTransitions } from "astro:transitions";
 import Lightbox from "../components/Lightbox.astro";
+import MetaTags from "../components/MetaTags.astro";
 import SectionNavigator from "../components/SectionNavigator.astro";
 
 interface Heading {
@@ -18,9 +19,12 @@ interface Heading {
 interface Props {
   title: string;
   headings: Heading[];
+  description?: string;
+  image?: string;
+  publishedTime?: string;
 }
 
-const { title, headings } = Astro.props;
+const { title, headings, description, image, publishedTime } = Astro.props;
 ---
 
 <!doctype html>
@@ -29,6 +33,13 @@ const { title, headings } = Astro.props;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
+    <MetaTags
+      title={title}
+      description={description}
+      image={image}
+      type="article"
+      publishedTime={publishedTime}
+    />
     <ViewTransitions />
   </head>
   <body>

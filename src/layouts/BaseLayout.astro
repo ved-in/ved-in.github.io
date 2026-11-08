@@ -3,14 +3,17 @@ import "../styles/global.css";
 import { ViewTransitions } from "astro:transitions";
 import Sidebar from "../components/Sidebar.astro";
 import Lightbox from "../components/Lightbox.astro";
+import MetaTags from "../components/MetaTags.astro";
 import type { NavKey } from "../data/types";
 
 interface Props {
   title: string;
   active: NavKey;
+  description?: string;
+  image?: string;
 }
 
-const { title, active } = Astro.props;
+const { title, active, description, image } = Astro.props;
 ---
 
 <!doctype html>
@@ -19,6 +22,7 @@ const { title, active } = Astro.props;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
+    <MetaTags title={title} description={description} image={image} />
     <ViewTransitions />
   </head>
   <body>
