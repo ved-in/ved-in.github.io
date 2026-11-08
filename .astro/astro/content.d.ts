@@ -157,6 +157,20 @@ declare module 'astro:content' {
   collection: "writings";
   data: InferEntrySchema<"writings">
 } & { render(): Render[".md"] };
+"attention-is-all-you-need-unpacked.md": {
+	id: "attention-is-all-you-need-unpacked.md";
+  slug: "attention-is-all-you-need-unpacked";
+  body: string;
+  collection: "writings";
+  data: InferEntrySchema<"writings">
+} & { render(): Render[".md"] };
+"my-two-cents-on-ai-alignment.md": {
+	id: "my-two-cents-on-ai-alignment.md";
+  slug: "my-two-cents-on-ai-alignment";
+  body: string;
+  collection: "writings";
+  data: InferEntrySchema<"writings">
+} & { render(): Render[".md"] };
 };
 
 	};
