@@ -1,5 +1,5 @@
 ---
-title: "My two cents on AI alignment"
+title: "My two cents on AI alignment and open source weights"
 date: 2026-11-08
 description: "sort of a rant by someone who just got exposed to AI alignment and such."
 readingTime: "2-3 min read"
