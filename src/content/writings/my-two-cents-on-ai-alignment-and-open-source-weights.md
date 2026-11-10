@@ -6,9 +6,9 @@ readingTime: "2-3 min read"
 image: "/images/og/my-two-cents-on-ai-alignment-and-open-source-weights.png"
 ---
 
-I gathered most of this from discussions on a Discord server, so some points may not be fully accurate.
+I gathered most of this from a discussion on a Discord server, so some points may not be fully accurate.
 
-Alignment research and misalignment research seem the same. The more people learn how models represent good and bad internally, the easier it becomes to push them toward bad. Lyra shared a method in which adjusting a few neurons in a 4B Qwen model turned it into an evil version—no dataset, no training run, just tweaking a couple of neurons.
+Alignment research and misalignment research seem the same. The more people learn how models represent good and bad internally, the easier it becomes to push them toward bad. Lyra shared a method in which adjusting a few neurons in a 4B Qwen model turned it into an evil version: no dataset, no training run, just tweaking a couple of neurons. [epestr](https://epestr.com/) raised a fair doubt about this. We don't know whether the neuron is really what we think it is. It could be a malevolent neuron or just a comically villainous one, and there may be others we can't find.
 
 ## open weights
 
@@ -18,9 +18,11 @@ I am not against open source. Most of this research exists because people could 
 
 ## models editing models
 
-Someone on the server said an aligned model with access to its weights could become misaligned. Think of Leonid Rogozov, the doctor in Antarctica who removed his appendix. The surgeon and the patient were the same person. Their point was that guardrails like sandboxing and access control matter more now than alignment itself. I think you need both. A model trying to break out of its sandbox is already an alignment problem. Also, guardrails only work if you control the weights—and open weights give that control away.
+epestr pointed out that an aligned model with access to its weights could become misaligned. Think of Leonid Rogozov, the doctor in Antarctica who removed his own appendix. The surgeon and the patient were the same person. Their point was that, for now, guardrails like sandboxing and access control matter more now than alignment itself, since a model can always seem aligned and we can't fully check what is going on inside it. You need both. A model trying to break out of its sandbox is already an alignment problem. Also, guardrails only work if you control the weights, and open weights give that control away.
 
-Someone else said that the day alignment is solved, alignment and cybersecurity researchers both lose their jobs. That sounds right to me. It feels less like a problem you finish.
+[Luminar](https://arneshbanerjee.dev/) said that once the day alignment is solved, AI and cybersecurity researchers both lose their jobs, assuming AI has already reached a superintelligent state. If it hasn't, only cyber researchers do, since AI researchers stay relevant until true AGI emerges.
+
+My take is different. I think alignment looks a lot like cybersecurity. Both are cat-and-mouse games: you catch one mouse, and another pops up. Security has a red team that attacks and a blue team that defends, and both use the same tools and techniques with opposite goals. Alignment and misalignment work the same way. Neither side ever finishes, so cybersecurity researchers will never run out of work. It is literally NOT possible. Similarly, I do not think alignment researchers will either. CVEs keep piling up every year.
 
 ## I am overblowing this
 
